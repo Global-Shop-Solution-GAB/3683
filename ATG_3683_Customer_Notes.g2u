@@ -1,0 +1,105 @@
+﻿Program.Sub.ScreenSU.Start
+Gui.F_Customer_Notes..create(BaseForm)
+Gui.F_Customer_Notes..caption("Notes")
+Gui.F_Customer_Notes..size(3600,3255)
+Gui.F_Customer_Notes..position(0,0)
+Gui.F_Customer_Notes..event(UnLoad,f_customer_notes_unload)
+Gui.F_Customer_Notes..alwaysontop(False)
+Gui.F_Customer_Notes..fontname("Arial")
+Gui.F_Customer_Notes..fontsize(8)
+Gui.F_Customer_Notes..forecolor(0)
+Gui.F_Customer_Notes..fontstyle(,,)
+Gui.F_Customer_Notes..BackColor(-2147483633)
+Gui.F_Customer_Notes..controlbox(True)
+Gui.F_Customer_Notes..maxbutton(False)
+Gui.F_Customer_Notes..minbutton(True)
+Gui.F_Customer_Notes..mousepointer(0)
+Gui.F_Customer_Notes..moveable(True)
+Gui.F_Customer_Notes..sizeable(False)
+Gui.F_Customer_Notes..ShowInTaskBar(True)
+Gui.F_Customer_Notes..titlebar(True)
+Gui.F_Customer_Notes..MinX(0)
+Gui.F_Customer_Notes..MinY(0)
+Gui.F_Customer_Notes.txtNotes.create(textboxm)
+Gui.F_Customer_Notes.txtNotes.visible(True)
+Gui.F_Customer_Notes.txtNotes.size(3525,3000)
+Gui.F_Customer_Notes.txtNotes.zorder(0)
+Gui.F_Customer_Notes.txtNotes.position(0,-15)
+Gui.F_Customer_Notes.txtNotes.enabled(False)
+Gui.F_Customer_Notes.txtNotes.fontname("Arial")
+Gui.F_Customer_Notes.txtNotes.fontsize(8)
+Gui.F_Customer_Notes.txtNotes.BackColor(-2147483643)
+Program.Sub.ScreenSU.End
+Program.Sub.Preflight.Start
+Variable.Global.sCustomer.Declare(String)
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+F.Intrinsic.Control.If(V.Caller.Hook,=,"11560")
+	V.Passed.000201.Set("Cust Notes")
+	F.Intrinsic.Control.End
+
+F.Intrinsic.Control.Elseif(V.Caller.Hook,=,"11910")
+	V.global.sCustomer.Set("111797")
+	V.Global.sCustomer.Set(V.Passed.000006)
+
+	F.Intrinsic.Control.If(V.global.sCustomer,=,"")
+		F.Intrinsic.UI.Msgbox("Please select a Customer")
+		F.Intrinsic.Control.End
+
+	F.Intrinsic.Control.EndIf
+
+	F.ODBC.Connection!conx.OpenCompanyConnection
+'	F.ODBC.Connection!conx.OpenConnection(V.Ambient.PDSN,V.Ambient.PUser,V.Ambient.PPass)
+	F.Intrinsic.Control.CallSub("GetNotes")
+	Gui.F_Customer_Notes..Show
+	Gui.F_Customer_Notes..AlwaysOnTop("True")
+F.Intrinsic.Control.EndIf
+
+
+
+Program.Sub.Main.End
+Program.Sub.f_customer_notes_unload.Start
+F.ODBC.Connection!conx.Close
+F.Intrinsic.Control.End
+
+Program.Sub.f_customer_notes_unload.End
+
+Program.Sub.GetNotes.Start
+V.Local.sQuery.Declare(String)
+V.Local.sNotes.Declare(String)
+V.Local.sRet.Declare(String)
+
+F.Intrinsic.String.Build("SELECT * FROM CUST_ORDER_NOTES WHERE CUSTOMER = '{0}'", V.Global.sCustomer, V.Local.sQuery) 
+'F.Intrinsic.String.concat("SELECT * FROM CUST_ORDER_NOTES WHERE CUSTOMER='",V.Global.sCustomer,"' ORDER BY SEQ ASC",V.Local.sQuery)
+F.ODBC.Connection!conx.ExecuteAndReturn(V.Local.sQuery, V.Local.sNotes)
+
+F.Intrinsic.Control.If(V.Local.sNotes, <>, "")
+	F.Intrinsic.String.Split(V.Local.sNotes, "*!*", V.Local.sNotes)
+	Gui.F_Customer_Notes.txtNotes.Text(V.Local.sNotes(1))
+F.Intrinsic.Control.EndIf
+
+'F.ODBC.Connection!conx.OpenRecordsetRO("rstNotes",V.Local.sQuery)
+
+'F.Intrinsic.Control.DoUntil(V.ODBC.conx!rstNotes.EOF,=,True)
+'	F.Intrinsic.Control.If(V.ODBC.conx!rstNotes.FieldValTrim!SEQ,=,"0001")
+'		V.Local.sNotes.Set(V.ODBC.conx!rstNotes.FieldVal!TEXT)
+'	F.Intrinsic.Control.Else
+'		F.Intrinsic.String.Concat(V.Local.sNotes,V.Ambient.NewLine,V.ODBC.conx!rstNotes.FieldVal!TEXT,V.Local.sNotes)
+'	F.Intrinsic.Control.EndIf
+'	F.ODBC.conx!rstNotes.MoveNext
+'F.Intrinsic.Control.Loop
+'F.ODBC.conx!rstNotes.Close
+
+'Gui.F_Customer_Notes.txtNotes.Text(V.Local.sNotes)
+
+Program.Sub.GetNotes.End
+
+Program.Sub.Comments.Start
+${$0$}$ATG_3683_Customer_Notes$}$RLK$}$4/4/2016$}$False
+${$1$}$$}$$}$1$}$11910$}$OES0200A-SCRIPT-1-HOOK?$}$4/4/2016 3:13:40 PM$}$(Program: ORD200; Screen: OES0200A)
+${$1$}$$}$$}$0$}$11560$}$OES0200A-POPULATE-HOOK$}$4/4/2016 3:13:21 PM$}$(Program: ORD200; Screen: OES0200A)
+${$5$}$2.0.0.0$}$2
+${$6$}$Angel$}$20220421155304507$}$KXl0r/FkrMYwb/r4ukQ87aOTsTN7X2eaLKWNQqQLp81QB5nXQ2kSMNFM6h+Mk+DQT7cx8Ez91pk=
+Program.Sub.Comments.End
+
